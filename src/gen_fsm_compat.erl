@@ -18,8 +18,30 @@
 %% %CopyrightEnd%
 %%
 -module(gen_fsm_compat).
--ifdef('22.0').
 
+%% Use a series of -ifdefs to assign the atom verision number to a numeric variable
+%% so that if can be used in place of the -ifdef version number and span multiple erlang verions.
+
+-ifdef(OTP_RELEASE).
+	%% OTP_RELEASE was added in OTP 21
+	-define(VERSION, ?OTP_RELEASE).
+-else.
+	-ifdef('20.0').
+		-define(VERSION, 20.0).
+	-else.
+		-ifdef('19.0').
+			-define(VERSION, 19.0).
+		-else.
+			-ifdef('18.0').
+				-define(VERSION, 18.0).
+			-else.
+				-define(VERSION, 17.0).
+			-endif.
+		-endif.
+	-endif.
+-endif.
+
+-if(?VERSION >= 22).
 %%%-----------------------------------------------------------------
 %%%   
 %%% This state machine is somewhat more pure than state_lib.  It is
@@ -670,8 +692,7 @@ format_status(Opt, Mod, PDict, State) ->
     end.
 
 
--else.
--ifdef('20.0').
+-elif(?VERSION >= 20).
 
 %%%-----------------------------------------------------------------
 %%%   
@@ -1323,8 +1344,7 @@ format_status(Opt, Mod, PDict, State) ->
     end.
 
 
--else.
--ifdef('19.0').
+-elif(?VERSION == 19).
 
 %%%-----------------------------------------------------------------
 %%%   
@@ -1954,8 +1974,7 @@ format_status(Opt, Mod, PDict, State) ->
     end.
 
 
--else.
--ifdef('18.0').
+-elif(?VERSION == 18).
 
 %%%-----------------------------------------------------------------
 %%%   
@@ -2652,8 +2671,7 @@ format_status(Opt, Mod, PDict, State) ->
     end.
 
 
--else.
--ifdef('17.0').
+-elif(?VERSION == 17).
 
 %%%-----------------------------------------------------------------
 %%%   
@@ -3336,9 +3354,7 @@ format_status(Opt, Mod, PDict, State) ->
     end.
 
 
--else.
--endif.
--ifdef('16.0').
+-elif(?VERSION =< 16).
 
 %%%-----------------------------------------------------------------
 %%%   
@@ -4023,10 +4039,4 @@ format_status(Opt, StatusData) ->
 	     {"StateName", StateName}]} |
      Specfic].
 
-
--else.
--endif.
--endif.
--endif.
--endif.
 -endif.
